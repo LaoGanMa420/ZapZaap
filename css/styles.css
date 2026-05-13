@@ -1,0 +1,229 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Main Content - Background Image */
+.main-content {
+    flex: 1;
+    width: 100%;
+    height: 100vh;
+    background: url('../images/background.png') center/contain no-repeat;
+    background-color: #87ceeb;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    position: relative;
+}
+
+.content-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.stall-front {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background: url('../images/stall-front.png') center/contain no-repeat;
+    background-position: bottom center;
+    z-index: 17;
+    pointer-events: none;
+}
+
+.customer {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 500px;
+    z-index: 15;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    animation: slideUp 0.8s ease-out forwards;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(600px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.title {
+    font-size: 48px;
+    color: white;
+    font-style: italic;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.logo {
+    width: 280px;
+    height: auto;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    margin: 0;
+}
+
+.game-subtitle {
+    font-size: 20px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 0;
+}
+
+/* Scene Container */
+.scene-container {
+    display: none;
+}
+
+/* Wishes Section */
+.wishes-section {
+    display: none;
+}
+
+.wish-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+}
+
+.wish-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #ff8787, #ff6b6b);
+}
+
+.wishes-list {
+    margin-top: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.wish-item {
+    background: white;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border-left: 4px solid #f4d447;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wish-text {
+    color: #1a1a3e;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.wish-date {
+    color: #999;
+    font-size: 12px;
+}
+
+.delete-wish {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.delete-wish:hover {
+    background: #ff5252;
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .title {
+        font-size: 36px;
+    }
+    
+    .scene-container {
+        max-width: 250px;
+        height: 250px;
+        margin-bottom: 30px;
+    }
+    
+    .moon {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .wishes-section {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+    .container {
+        padding: 10px;
+    }
+
+    .header, .footer {
+        font-size: 14px;
+    }
+
+    .button {
+        width: 100%;
+    }
+}
