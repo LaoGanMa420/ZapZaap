@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZAP ZAAP - Cooking</title>
+    <link rel="stylesheet" href="css/cooking.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Cooking Scene Background -->
+        <main class="cooking-scene">
+            <!-- Pestle Image -->
+            <div class="pestle" id="pestle"></div>
+            
+            <!-- Center Display for Tumbled Ingredients -->
+            <div class="center-display" id="centerDisplay"></div>
+            
+            <!-- Serve Button (Hidden by default) -->
+            <div class="serve-button" id="serveButton">SERVE</div>
+            
+            <!-- Ingredient Elements -->
+            <div class="ingredient strawberry" id="strawberry"></div>
+            <div class="ingredient peppers" id="peppers"></div>
+            <div class="ingredient cloves" id="cloves"></div>
+            <div class="ingredient nuts" id="nuts"></div>
+            <div class="ingredient peas" id="peas"></div>
+            <div class="ingredient beans" id="beans"></div>
+            <div class="ingredient cucumber" id="cucumber"></div>
+            <div class="ingredient mortar" id="mortar"></div>
+            
+            <!-- All cooking game elements go here -->
+        </main>
+    </div>
+
+    <script src="js/cooking.js"></script>
+    <script>
+        // Reload protection - redirect to start page if reloaded
+        // performance.navigation.type: 0 = navigate, 1 = reload, 2 = back/forward, 255 = reserved
+        const isPageReload = performance.navigation && performance.navigation.type === 1;
+        
+        if (isPageReload) {
+            // This is a page reload on cooking.html, redirect to start page
+            localStorage.setItem('totalMoney', 0);
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+        // Clear the flag for next navigation
+        sessionStorage.removeItem('intentionalNavigation');
+        
+        // Ingredient hover detection system
+        window.ingredients = [
+            { id: 'strawberry', image: 'images/Tomato.png', tumbled: 'images/Tomato_Tum.png' },
+            { id: 'peppers', image: 'images/Chili.png', tumbled: 'images/Chili_Tum.png' },
+            { id: 'cloves', image: 'images/Plara.png', tumbled: 'images/Plara_Tum.png' },
+            { id: 'nuts', image: 'images/Garlic.png', tumbled: 'images/Garlic_Tum.png' },
+            { id: 'peas', image: 'images/Lime.png', tumbled: 'images/Lime_Tum.png' },
+            { id: 'beans', image: 'images/Longbeans.png', tumbled: 'images/Longbeans_Tum.png' },
+            { id: 'cucumber', image: 'images/Papaya.png', tumbled: 'images/Papaya_Tum.png' },
+            { id: 'mortar', image: 'images/Crab.png', tumbled: 'images/Crab_Tum.png' }
+        ];
+
+        window.pixelMaps = {};
+        window.imageDimensions = {};
+        window.loadedCount = 0;
+        window.selectedIngredients = {};
+        window.pestleClickCount = 0;
+        
+        const ingredients = window.ingredients;
+        const pixelMaps = window.pixelMaps;
+        const imageDimensions = window.imageDimensions;
+        const selectedIngredients = window.selectedIngredients;
+
+        // Load images and create pixel maps
+        function loadIngredientPixelMaps() {
+            ingredients.forEach(ingredient => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Extract non-transparent pixels
+                    const pixelMap = [];
+                    for (let i = 3; i < data.length; i += 4) {
+                        pixelMap.push(data[i] > 128); // Alpha > 128 = visible
+                    }
+                    
+                    pixelMaps[ingredient.id] = {
+                        pixels: pixelMap,
+                        width: canvas.width,
+                        height: canvas.height
+                    };
+                    imageDimensions[ingredient.id] = {
+                        width: img.width,
+                        height: img.height
+                    };
+                    
+                    loadedCount++;
+                    window.loadedCount = loadedCount;
+                    console.log(`Loaded ${ingredient.id}: ${img.width}x${img.height}`);
+                };
+                img.onerror = function() {
+                    console.error(`Failed to load ${ingredient.image}`);
+                };
+                img.src = ingredient.image;
+            });
+        }
+
+        // Check which ingredient is under the cursor
+        function getIngredientAtPosition(x, y) {
+            console.log(`Checking position: ${x}, ${y}`);
+            
+            // Check from last to first (highest z-index first)
+            for (let i = ingredients.length - 1; i >= 0; i--) {
+                const ingredientId = ingredients[i].id;
+                const element = document.getElementById(ingredientId);
+                const pixelMap = pixelMaps[ingredientId];
+                
+                if (!pixelMap || !element) {
+                    console.log(`Skipping ${ingredientId}: pixelMap=${!!pixelMap}, element=${!!element}`);
+                    continue;
+                }
+                
+                // Get the element's bounding rectangle
+                const rect = element.getBoundingClientRect();
+                console.log(`${ingredientId}: rect=(${rect.left}, ${rect.top}, ${rect.width}, ${rect.height})`);
+                
+                // Get the image dimensions
+                const imgDim = imageDimensions[ingredientId];
+                if (!imgDim) {
+                    console.log(`${ingredientId}: no image dimensions`);
+                    continue;
+                }
+                
+                const containerWidth = rect.width;
+                const containerHeight = rect.height;
+                
+                // Calculate scaling for 'contain'
+                const scaleX = containerWidth / imgDim.width;
+                const scaleY = containerHeight / imgDim.height;
+                const scale = Math.min(scaleX, scaleY);
+                
+                const scaledWidth = imgDim.width * scale;
+                const scaledHeight = imgDim.height * scale;
+                
+                // Center the image
+                const offsetX = (containerWidth - scaledWidth) / 2;
+                const offsetY = (containerHeight - scaledHeight) / 2;
+                
+                const imgScreenX = rect.left + offsetX;
+                const imgScreenY = rect.top + offsetY;
+                
+                console.log(`${ingredientId}: scale=${scale}, scaled=(${scaledWidth}, ${scaledHeight}), imgScreen=(${imgScreenX}, ${imgScreenY})`);
+                
+                // Check if cursor is within the image bounds
+                if (x >= imgScreenX && x <= imgScreenX + scaledWidth &&
+                    y >= imgScreenY && y <= imgScreenY + scaledHeight) {
+                    
+                    // Map cursor position to image pixel coordinates
+                    const imgX = Math.floor((x - imgScreenX) / scale);
+                    const imgY = Math.floor((y - imgScreenY) / scale);
+                    
+                    console.log(`${ingredientId}: cursor is within bounds, imgCoords=(${imgX}, ${imgY})`);
+                    
+                    // Check if this pixel is non-transparent
+                    if (imgX >= 0 && imgX < pixelMap.width && imgY >= 0 && imgY < pixelMap.height) {
+                        const pixelIndex = (imgY * pixelMap.width + imgX);
+                        console.log(`${ingredientId}: checking pixel at index ${pixelIndex}`);
+                        if (pixelMap.pixels[pixelIndex]) {
+                            console.log(`Hit ingredient: ${ingredientId} at pixel (${imgX}, ${imgY})`);
+                            return ingredientId;
+                        } else {
+                            console.log(`${ingredientId}: pixel is transparent`);
+                        }
+                    } else {
+                        console.log(`${ingredientId}: coordinates out of bounds`);
+                    }
+                }
+            }
+            
+            console.log('No ingredient hit');
+            return null;
+        }
+
+        // Handle mouse movement
+        document.addEventListener('mousemove', function(e) {
+            const hoveredIngredient = getIngredientAtPosition(e.clientX, e.clientY);
+            
+            // Remove hover class from all ingredients that are NOT selected
+            ingredients.forEach(ingredient => {
+                const element = document.getElementById(ingredient.id);
+                if (!element.classList.contains('selected')) {
+                    element.classList.remove('hovered');
+                }
+            });
+            
+            // Add hover class to the ingredient under cursor (only if not selected)
+            if (hoveredIngredient) {
+                const element = document.getElementById(hoveredIngredient);
+                if (!element.classList.contains('selected')) {
+                    element.classList.add('hovered');
+                    console.log('Hovering:', hoveredIngredient);
+                }
+            }
+        });
+
+        // Handle ingredient clicks
+        document.addEventListener('click', function(e) {
+            const clickedIngredient = getIngredientAtPosition(e.clientX, e.clientY);
+            
+            if (clickedIngredient) {
+                const selectedElement = document.getElementById(clickedIngredient);
+                const centerDisplay = document.getElementById('centerDisplay');
+                
+                // Toggle selected class on clicked ingredient
+                if (selectedElement.classList.contains('selected')) {
+                    selectedElement.classList.remove('selected');
+                    // Remove from tracking
+                    delete selectedIngredients[clickedIngredient];
+                    console.log('Deselected:', clickedIngredient);
+                } else {
+                    selectedElement.classList.add('selected');
+                    // Add to tracking
+                    const ingredientData = window.ingredients.find(ing => ing.id === clickedIngredient);
+                    if (ingredientData) {
+                        selectedIngredients[clickedIngredient] = ingredientData.tumbled;
+                    }
+                    console.log('Selected:', clickedIngredient);
+                }
+                
+                // Update center display with all selected ingredients
+                updateCenterDisplay();
+            }
+        });
+        
+        // Update center display to show all selected ingredients
+        function updateCenterDisplay() {
+            const centerDisplay = document.getElementById('centerDisplay');
+            centerDisplay.innerHTML = ''; // Clear previous displays
+            
+            const selectedKeys = Object.keys(selectedIngredients);
+            if (selectedKeys.length === 0) {
+                return;
+            }
+            
+            // Create display elements for each selected ingredient
+            selectedKeys.forEach((ingredientId) => {
+                const tumbledImage = selectedIngredients[ingredientId];
+                const ingredientElement = document.getElementById(ingredientId);
+                const rect = ingredientElement.getBoundingClientRect();
+                const cookingScene = document.querySelector('.cooking-scene');
+                const sceneRect = cookingScene.getBoundingClientRect();
+                
+                const div = document.createElement('div');
+                div.className = 'tumbled-display';
+                div.style.backgroundImage = `url('${tumbledImage}')`;
+                
+                // Position at the ingredient's original location
+                const posX = rect.left - sceneRect.left;
+                const posY = rect.top - sceneRect.top;
+                
+                div.style.position = 'absolute';
+                div.style.left = `${posX}px`;
+                div.style.top = `${posY}px`;
+                div.style.width = `${rect.width}px`;
+                div.style.height = `${rect.height}px`;
+                
+                centerDisplay.appendChild(div);
+            });
+            
+            // Check if all 8 ingredients are selected
+            const allIngredientsSelected = Object.keys(selectedIngredients).length === 8;
+            console.log(`All ingredients selected: ${allIngredientsSelected}`);
+        }
+
+        // Handle pestle click when all ingredients are selected
+        document.addEventListener('click', function(e) {
+            const pestle = document.getElementById('pestle');
+            const pestleRect = pestle.getBoundingClientRect();
+            
+            // Check if pestle was clicked
+            if (e.clientX >= pestleRect.left && e.clientX <= pestleRect.right &&
+                e.clientY >= pestleRect.top && e.clientY <= pestleRect.bottom) {
+                
+                // Check if all 8 ingredients are selected
+                if (Object.keys(selectedIngredients).length === 8) {
+                    console.log('Pestle clicked with all ingredients selected!');
+                    
+                    // Increment pestle click count
+                    window.pestleClickCount++;
+                    console.log(`Pestle clicks: ${window.pestleClickCount}/10`);
+                    
+                    // Bring pestle to front
+                    pestle.style.zIndex = '100';
+                    
+                    // Store original background
+                    const originalBackground = pestle.style.backgroundImage || "url('../images/Pestle_Up.png')";
+                    
+                    // Change to pestle down image (representing crushed ingredients)
+                    pestle.style.backgroundImage = "url('../images/Pestle_Down2.png')";
+                    
+                    // After 0.3 second, change back
+                    setTimeout(() => {
+                        pestle.style.backgroundImage = originalBackground;
+                        pestle.style.zIndex = '0';
+                        console.log('Pestle image reverted');
+                        
+                        // Check if we reached 10 clicks
+                        if (window.pestleClickCount === 10) {
+                            showServeButton();
+                        }
+                    }, 300);
+                }
+            }
+        });
+        
+        // Show serve button at center
+        function showServeButton() {
+            const serveButton = document.getElementById('serveButton');
+            serveButton.style.display = 'block';
+            console.log('Serve button displayed!');
+        }
+        
+        // Handle serve button click
+        document.addEventListener('click', function(e) {
+            const serveButton = document.getElementById('serveButton');
+            if (e.target === serveButton) {
+                console.log('Order served!');
+                // Calculate money earned (base amount for serving + bonus if all ingredients selected)
+                const moneyEarned = 50; // Fixed amount per order
+                
+                // Store flags and money in sessionStorage
+                sessionStorage.setItem('customerSlideDown', 'true');
+                sessionStorage.setItem('moneyEarned', moneyEarned);
+                
+                // Navigate to game page
+                window.location.href = 'game.html';
+            }
+        });
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            console.log('Initializing pixel maps...');
+            loadIngredientPixelMaps();
+        });
+    </script>
+</html>

@@ -8,10 +8,30 @@
 </head>
 <body>
     <div class="container">
+        <!-- Money Counter Box -->
+        <div class="money-box" id="moneyBox">
+            <span class="money-label">Total:</span>
+            <span class="money-amount" id="moneyAmount">0</span>
+        </div>
+        
         <!-- Main Background Scene -->
         <main class="main-content">
+            <!-- Money Popup Display (Hidden by default) -->
+            <div class="money-popup" id="moneyPopup">
+                <div class="money-popup-text">+<span id="moneyPopupAmount">0</span></div>
+            </div>
+            
             <!-- Customer Character -->
             <div class="customer" id="customer"></div>
+            
+            <!-- Chat Box -->
+            <div class="chat-box" id="chatBox">
+                <div class="chat-header-tab">Receive Order</div>
+                <div class="chat-content">
+                    <p>Hi! I'd like to order something...</p>
+                </div>
+                <button class="receive-order-btn">Receive Order</button>
+            </div>
             
             <!-- Stall Front Image -->
             <div class="stall-front"></div>

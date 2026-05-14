@@ -1,0 +1,359 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Ingredient Button Overlay - Positioned on cooking scene */
+.ingredient-btn-overlay {
+    position: absolute;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    cursor: pointer;
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.7), rgba(56, 142, 60, 0.8));
+    transition: all 0.3s ease;
+    z-index: 15;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.ingredient-btn-overlay:hover {
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 1));
+    transform: scale(1.1);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.ingredient-btn-overlay:active {
+    transform: scale(0.95);
+}
+
+/* Individual button positions - based on ingredient locations as % of cooking scene */
+#btn-strawberry {
+    left: 6.25%;
+    top: 0%;
+    width: 24.03%;
+    height: 9.92%;
+}
+
+#btn-peppers {
+    left: 71.67%;
+    top: 1.25%;
+    width: 20.69%;
+    height: 6.72%;
+}
+
+#btn-cloves {
+    left: 46.25%;
+    top: 13.52%;
+    width: 22.64%;
+    height: 11.48%;
+}
+
+#btn-nuts {
+    left: 43.33%;
+    top: 0.16%;
+    width: 18.61%;
+    height: 7.34%;
+}
+
+#btn-peas {
+    left: 20.56%;
+    top: 0.08%;
+    width: 23.47%;
+    height: 9.30%;
+}
+
+#btn-beans {
+    left: 62.36%;
+    top: 0%;
+    width: 11.11%;
+    height: 8.36%;
+}
+
+#btn-cucumber {
+    left: 0%;
+    top: 17.97%;
+    width: 18.89%;
+    height: 10.31%;
+}
+
+#btn-mortar {
+    left: 72.22%;
+    top: 15.86%;
+    width: 21.94%;
+    height: 8.98%;
+}
+
+/* Cooking Scene Background */
+.cooking-scene {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: url('../images/Cooking-scene.png') center/contain no-repeat;
+    background-color: #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    position: relative;
+}
+
+/* Pestle Background Element */
+.pestle {
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    width: 250px;
+    height: 400px;
+    background: url('../images/Pestle_Up.png') center/contain no-repeat;
+    z-index: 0;
+    pointer-events: auto;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: background-image 0.3s ease;
+}
+
+/* Serve Button */
+.serve-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    z-index: 200;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    display: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.serve-button:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.serve-button:active {
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* Ingredient Elements - Base Styling */
+.ingredient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* Strawberry/Tomato */
+.strawberry {
+    background-image: url('../images/Tomato.png');
+}
+
+.strawberry.hovered {
+    background-image: url('../images/Tomato_Outlined.png');
+}
+
+/* Red Peppers/Chili */
+.peppers {
+    background-image: url('../images/Chili.png');
+}
+
+.peppers.hovered {
+    background-image: url('../images/Chili_Outlined.png');
+}
+
+/* Cloves/Plara */
+.cloves {
+    background-image: url('../images/Plara.png');
+}
+
+.cloves.hovered {
+    background-image: url('../images/Plara_Outlined.png');
+}
+
+/* Nuts/Garlic */
+.nuts {
+    background-image: url('../images/Garlic.png');
+}
+
+.nuts.hovered {
+    background-image: url('../images/Garlic_Outlined.png');
+}
+
+/* Peas/Lime */
+.peas {
+    background-image: url('../images/Lime.png');
+}
+
+.peas.hovered {
+    background-image: url('../images/Lime_Outlined.png');
+}
+
+/* Green Beans/Longbeans */
+.beans {
+    background-image: url('../images/Longbeans.png');
+}
+
+.beans.hovered {
+    background-image: url('../images/Longbeans_Outlined.png');
+}
+
+/* Cucumber/Papaya */
+.cucumber {
+    background-image: url('../images/Papaya.png');
+}
+
+.cucumber.hovered {
+    background-image: url('../images/Papaya_Outlined.png');
+}
+
+/* Mortar/Crab */
+.mortar {
+    background-image: url('../images/Crab.png');
+}
+
+.mortar.hovered {
+    background-image: url('../images/Crab_Outlined.png');
+}
+
+/* Selected/Pressed Ingredient State - keeps outline and brings to front */
+.ingredient.selected {
+    z-index: 50 !important;
+}
+
+.strawberry.selected {
+    background-image: url('../images/Tomato_Outlined.png') !important;
+}
+
+.peppers.selected {
+    background-image: url('../images/Chili_Outlined.png') !important;
+}
+
+.cloves.selected {
+    background-image: url('../images/Plara_Outlined.png') !important;
+}
+
+.nuts.selected {
+    background-image: url('../images/Garlic_Outlined.png') !important;
+}
+
+.peas.selected {
+    background-image: url('../images/Lime_Outlined.png') !important;
+}
+
+.beans.selected {
+    background-image: url('../images/Longbeans_Outlined.png') !important;
+}
+
+.cucumber.selected {
+    background-image: url('../images/Papaya_Outlined.png') !important;
+}
+
+.mortar.selected {
+    background-image: url('../images/Crab_Outlined.png') !important;
+}
+
+/* Individual Ingredient Positioning - Full scene coverage for proper hover detection */
+.strawberry {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.peppers {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.cloves {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.nuts {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.peas {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.beans {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.cucumber {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.mortar {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Center Display for Tumbled Ingredients */
+.center-display {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.tumbled-display {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+}
